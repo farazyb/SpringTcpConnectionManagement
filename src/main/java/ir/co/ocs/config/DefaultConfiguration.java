@@ -23,7 +23,6 @@ import java.util.Optional;
 @Component
 public class DefaultConfiguration {
 
-    DefaultIoFilterChainBuilder defaultIoFilterChainBuilder;
     @Bean
     @Scope("prototype")
     public DefaultIoFilterChainBuilder defaultIoFilterChainBuilder(ExecutorFilter executorFilter, MdcInjectionFilter mdcInjectionFilter,
@@ -31,7 +30,7 @@ public class DefaultConfiguration {
                                                                    LoggingFilter loggingFilter,
                                                                    Statistics statistics,
                                                                    Optional<SslFilter> sslFilterOptional) {
-        defaultIoFilterChainBuilder = new DefaultIoFilterChainBuilder();
+        DefaultIoFilterChainBuilder defaultIoFilterChainBuilder = new DefaultIoFilterChainBuilder();
         Map<String, IoFilter> filters = new LinkedHashMap<>();
         filters.put("executor", executorFilter);
         filters.put("mdcInjectionFilter", mdcInjectionFilter);
@@ -85,7 +84,4 @@ public class DefaultConfiguration {
         return new DefaultStatistics();
     }
 
-    public DefaultIoFilterChainBuilder getDefaultIoFilterChainBuilder() {
-        return defaultIoFilterChainBuilder;
-    }
 }

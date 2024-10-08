@@ -1,10 +1,14 @@
 package ir.co.ocs.managers;
 
 import ir.co.ocs.config.DefaultConfiguration;
+import ir.co.ocs.email.EmailDetails;
+import ir.co.ocs.email.EmailService;
 import ir.co.ocs.envoriments.LifeCycle;
 import ir.co.ocs.envoriments.Server;
+import ir.co.ocs.envoriments.State;
 import ir.co.ocs.envoriments.TcpServerConfigurationHandler;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +19,16 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @Log4j2
 public class ServerManager implements Manager<Server> {
-    TcpServerConfigurationHandler tcpServerConfigurationHandler;
+    @Autowired
+    EmailService emailService;
+    EmailDetails emailDetails;
     private final ConcurrentHashMap<String, Server> serversHashMap = new ConcurrentHashMap<>();
 
+    public ServerManager() {
+        emailDetails = new EmailDetails();
+        emailDetails.setRecipient("farazyazdanibiuki@gmail.com");
+        emailDetails.setSubject("Switch Notification");
+    }
 
     @Lookup
     protected Server server() {
@@ -32,11 +43,13 @@ public class ServerManager implements Manager<Server> {
 
     @Override
     public void add(Server... servers) {
+        emailDetails.setMessageBody("Server add");
+        emailService.sendEmail(emailDetails);
         for (Server server : servers) {
             String channelIdentifier = server.getTcpServerConfiguration()
                     .getChannelIdentificationName();
             if (serversHashMap.containsKey(channelIdentifier)) {
-                throw new IllegalArgumentException("Service with name '" + channelIdentifier + "' already exists.");
+                throw new ManagersException("Service with name '" + channelIdentifier + "' already exists.");
             }
             serversHashMap.put(channelIdentifier, server);
         }
@@ -44,24 +57,55 @@ public class ServerManager implements Manager<Server> {
 
     @Override
     public void remove(String... identifiers) {
+        emailDetails.setMessageBody("Server removed");
+        emailService.sendEmail(emailDetails);
         for (String identifier : identifiers) {
             Server server = serversHashMap.get(identifier);
             if (server != null) {
-                log.info("server {} stopped", server.getTcpServerConfiguration().getChannelIdentificationName());
+                String channelInformation = server.getTcpServerConfiguration().getChannelIdentificationName();
+                if (server.getState() != State.STOPPED) {
+                    throw new ManagersException("Already server with name '" + identifier + "' is not stop , for remove  must stop server");
+                }
+                serversHashMap.remove(channelInformation);
+                log.info("server {} removed", server.getTcpServerConfiguration().getChannelIdentificationName());
             } else {
-                throw new IllegalArgumentException("server with name '" + identifier + "' not registered");
+                throw new ManagersException("server with name '" + identifier + "' not registered");
             }
         }
     }
 
     @Override
     public Server get(String identifier) {
-        return null;
+        Server server = serversHashMap.get(identifier);
+        if (server == null) {
+            throw new ManagersException("server with name '" + identifier + "' not registered");
+        }
+
+        return server;
     }
 
     @Override
     public void shutdown() {
+        for (Server server : serversHashMap.values()) {
+            try {
+                // Ensure the server is stopped or in a state that allows shutdown
+                if (server.getState() != State.STOPPED) {
+                    server.stop();  // Assuming stop() method exists in Server class
+                }
+                log.info("Shutting down server: {}", server.getTcpServerConfiguration().getChannelIdentificationName());
+            } catch (Exception e) {
+                throw new ManagersException("Failed to shut down server: " +
+                        server.getTcpServerConfiguration().getChannelIdentificationName() + " -> " + e.getMessage());
+            }
+        }
+        serversHashMap.clear();
+        log.info("All servers have been successfully shut down and cleared from the manager.");
 
+    }
+
+    @Override
+    public ConcurrentHashMap<String, Server> getServices() {
+        return serversHashMap;
     }
 
 }

@@ -6,4 +6,5 @@ public interface LifeCycle {
     public void restart();
 
     public void stop();
+    public void stopAndRemove();
 }

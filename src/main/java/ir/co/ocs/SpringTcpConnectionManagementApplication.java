@@ -1,6 +1,8 @@
 package ir.co.ocs;
 
+import ir.co.ocs.envoriments.Server;
 import ir.co.ocs.managers.ServerManager;
+import ir.co.ocs.socketconfiguration.TcpServerConfiguration;
 import ir.co.ocs.statistics.Statistics;
 import org.apache.mina.filter.executor.ExecutorFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +21,13 @@ public class SpringTcpConnectionManagementApplication implements CommandLineRunn
 
     @Override
     public void run(String... args) throws Exception {
-        serverManager.getInstance();
-        serverManager.getInstance();
-        serverManager.getInstance();
+        Server server = serverManager.getInstance();
+        TcpServerConfiguration tcpServerConfiguration = new TcpServerConfiguration();
+        tcpServerConfiguration.setChannelIdentificationName("Test");
+        server.setTcpServerConfiguration(tcpServerConfiguration);
+        serverManager.add(server);
+        serverManager.remove("Test");
+
 
     }
 }

@@ -7,6 +7,7 @@ import org.apache.mina.transport.socket.DefaultSocketSessionConfig;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Configuration class for TCP server socket settings.
@@ -62,6 +63,9 @@ public class BaseTcpSocketConfiguration extends DefaultSocketSessionConfig imple
     // private Processor processor;//mandatory
     private boolean permanent;
     private int sessionTimeOut;
+
+    private int maxTry;
+    private int interval;
 
 
     public BaseTcpSocketConfiguration() {
@@ -143,5 +147,21 @@ public class BaseTcpSocketConfiguration extends DefaultSocketSessionConfig imple
 
     public void setSessionTimeOut(int sessionTimeOut) {
         this.sessionTimeOut = sessionTimeOut;
+    }
+
+    public int getMaxTry() {
+        return maxTry;
+    }
+
+    public void setMaxTry(int maxTry) {
+        this.maxTry = maxTry;
+    }
+
+    public int getInterval() {
+        return interval;
+    }
+
+    public void setInterval(int interval) {
+        this.interval = interval;
     }
 }
