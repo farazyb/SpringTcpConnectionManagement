@@ -1,6 +1,6 @@
 package ir.co.ocs.managers;
 
-public class ManagersException extends RuntimeException {
+public class ManagersException extends Exception {
     public ManagersException(String message) {
         super(message);
     }

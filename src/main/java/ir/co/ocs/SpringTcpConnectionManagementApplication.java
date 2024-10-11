@@ -1,19 +1,26 @@
 package ir.co.ocs;
 
-import ir.co.ocs.envoriments.Server;
-import ir.co.ocs.managers.ServerManager;
+import ir.co.ocs.envoriments.client.Client;
+import ir.co.ocs.envoriments.client.ClientManager;
+import ir.co.ocs.envoriments.server.Server;
+import ir.co.ocs.envoriments.server.ServerManager;
+import ir.co.ocs.socketconfiguration.TcpClientConfiguration;
 import ir.co.ocs.socketconfiguration.TcpServerConfiguration;
-import ir.co.ocs.statistics.Statistics;
-import org.apache.mina.filter.executor.ExecutorFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.env.Environment;
+import org.springframework.retry.annotation.EnableRetry;
 
 @SpringBootApplication
 public class SpringTcpConnectionManagementApplication implements CommandLineRunner {
     @Autowired
     ServerManager serverManager;
+    @Autowired
+    ClientManager clientManager;
+    @Autowired
+    private Environment env;
 
     public static void main(String[] args) {
         SpringApplication.run(SpringTcpConnectionManagementApplication.class, args);
@@ -21,13 +28,26 @@ public class SpringTcpConnectionManagementApplication implements CommandLineRunn
 
     @Override
     public void run(String... args) throws Exception {
-        Server server = serverManager.getInstance();
-        TcpServerConfiguration tcpServerConfiguration = new TcpServerConfiguration();
-        tcpServerConfiguration.setChannelIdentificationName("Test");
-        server.setTcpServerConfiguration(tcpServerConfiguration);
-        serverManager.add(server);
-        serverManager.remove("Test");
+        if (!env.acceptsProfiles("test")) {
+//            TcpServerConfiguration tcpServerConfiguration = new TcpServerConfiguration();
+//            tcpServerConfiguration.setPort(8085);
+//            tcpServerConfiguration.setChannelIdentificationName("server");
+//            Server server = serverManager.createServer(tcpServerConfiguration);
+//            server.start();
+//            serverManager.addService(server);
+            TcpClientConfiguration tcpClientConfiguration = new TcpClientConfiguration();
+            tcpClientConfiguration.setHostAddress("localhost");
+            tcpClientConfiguration.setPort(8085);
+            tcpClientConfiguration.setChannelIdentificationName("client");
+            tcpClientConfiguration.setMaxTry(10);
+            tcpClientConfiguration.setInterval(500);
+            Client client = clientManager.createClient(tcpClientConfiguration);
+            client.start();
+            clientManager.addService(client);
 
+
+//        serverManager.remove("Test");
+        }
 
     }
 }

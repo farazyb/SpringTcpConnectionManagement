@@ -85,12 +85,6 @@ public class BaseTcpSocketConfiguration extends DefaultSocketSessionConfig imple
             throw new TcpConfigIsNotValid("Port must be a positive integer.");
         }
 
-//        if (processor == null) {
-//            //throw new IllegalArgumentException("Processor is mandatory.");
-//            //todo check for processor
-//        }
-
-        // Optionally ensure default protocol codec factory if not set
         if (!permanent) {
             if (sessionTimeOut > 0) {
                 setBothIdleTime(sessionTimeOut);
