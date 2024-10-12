@@ -63,12 +63,12 @@ public class ServerTest {
 
     @Then("the server should be configured with the provided TcpServerConfiguration")
     public void the_server_should_be_configured_with_the_provided_configuration() {
-        assertEquals(tcpServerConfiguration, server.getTcpServerConfiguration());
+        assertEquals(tcpServerConfiguration, server.getBaseTcpSocketConfiguration());
     }
 
     @Then("the server should not be {string}")
     public void the_server_should_not_be_running(String state) {
-        assertNotEquals(State.valueOf(state), server.getState());
+        assertNotEquals(State.valueOf(state), server.getBaseTcpSocketConfiguration());
     }
 
     @Given("a server that is initialized with a valid TcpServerConfiguration")
@@ -86,7 +86,7 @@ public class ServerTest {
 
     @Then("the server state should be {string}")
     public void theServerStateShouldBeRUNNING(String state) {
-        assertEquals(State.valueOf(state), server.getState());
+        assertEquals(State.valueOf(state), server.state());
     }
 
     @Then("a NetworkBindingException should be thrown")
@@ -97,7 +97,7 @@ public class ServerTest {
 
     @And("the server state should remain STOPPED")
     public void theServerStateShouldRemainSTOPPED() {
-        assertEquals(State.STOPPED, server.getState());
+        assertEquals(State.STOPPED, server.state());
     }
 
     @Given("a server that is started and is in RUNNING state")
@@ -114,7 +114,7 @@ public class ServerTest {
             return null; // Return type of bind() is void
         }).when(nioSocketAcceptor).bind();
         server.start();
-        assertEquals(State.RUNNING, server.getState());
+        assertEquals(State.RUNNING, server.state());
     }
 
     @When("the server is stopping")

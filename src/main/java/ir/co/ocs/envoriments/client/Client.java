@@ -4,6 +4,7 @@ import ir.co.ocs.envoriments.NetworkChannel;
 import ir.co.ocs.envoriments.Repeater;
 import ir.co.ocs.envoriments.State;
 import ir.co.ocs.envoriments.StateService;
+import ir.co.ocs.filters.Filter;
 import ir.co.ocs.handler.NetworkChannelHandler;
 import ir.co.ocs.socketconfiguration.BaseTcpSocketConfiguration;
 import ir.co.ocs.socketconfiguration.TcpClientConfiguration;
@@ -13,9 +14,12 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
+import java.util.Objects;
 
 @Component
 @Log4j2
@@ -25,6 +29,7 @@ public class Client implements NetworkChannel {
     private final DefaultIoFilterChainBuilder filterChainBuilder;
     private final StateService stateService;
     private Repeater repeater;
+    private boolean shouldMonitor = false;
 
     public Client(DefaultIoFilterChainBuilder filterChainBuilder, StateService stateService) {
         this.filterChainBuilder = filterChainBuilder;
@@ -46,25 +51,28 @@ public class Client implements NetworkChannel {
                 new InetSocketAddress(tcpClientSocketConfiguration.getHostAddress(),
                         tcpClientSocketConfiguration.getPort()));
         this.nioSocketConnector.setFilterChainBuilder(filterChainBuilder);
-//        this.nioSocketConnector.setConnectTimeoutMillis(5000);
         this.nioSocketConnector.setHandler(new NetworkChannelHandler());
-//        this.nioSocketConnector.setConnectTimeoutCheckInterval(500);
         return this.nioSocketConnector;
     }
 
     @Override
     public void start() {
         try {
-//            log.info("start Connecting to {}", nioSocketConnector.getDefaultRemoteAddress());
-//            ConnectFuture connectFuture = nioSocketConnector.connect();
-//            connectFuture.awaitUninterruptibly();
-//            IoSession session = connectFuture.getSession();
             repeater.connect(nioSocketConnector);
-
+            shouldMonitor = true;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+    }
+
+    @Scheduled(fixedDelay = 500)
+    @Async
+    public void monitorConnection() {
+        if (shouldMonitor)
+            if (!nioSocketConnector.isActive()) {
+                start();
+            }
     }
 
     @Override
@@ -90,6 +98,12 @@ public class Client implements NetworkChannel {
     @Override
     public State state() {
         return stateService.getState();
+    }
+
+    @Override
+    public void addFilter(Filter filter) {
+        Objects.requireNonNull(filter);
+        filterChainBuilder.addLast(filter.getName(), filter.getIoFilterAdapter());
     }
 
 }

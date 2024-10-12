@@ -1,6 +1,8 @@
 package ir.co.ocs.envoriments;
 
+import ir.co.ocs.filters.Filter;
 import ir.co.ocs.socketconfiguration.BaseTcpSocketConfiguration;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
 
 public interface NetworkChannel {
 
@@ -16,5 +18,7 @@ public interface NetworkChannel {
     public BaseTcpSocketConfiguration getBaseTcpSocketConfiguration();
 
     public State state();
+
+    void addFilter(Filter filter);
 
 }

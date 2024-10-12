@@ -12,8 +12,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.Environment;
 import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling
 public class SpringTcpConnectionManagementApplication implements CommandLineRunner {
     @Autowired
     ServerManager serverManager;
@@ -37,7 +39,7 @@ public class SpringTcpConnectionManagementApplication implements CommandLineRunn
 //            serverManager.addService(server);
             TcpClientConfiguration tcpClientConfiguration = new TcpClientConfiguration();
             tcpClientConfiguration.setHostAddress("localhost");
-            tcpClientConfiguration.setPort(8085);
+            tcpClientConfiguration.setPort(8080);
             tcpClientConfiguration.setChannelIdentificationName("client");
             tcpClientConfiguration.setMaxTry(10);
             tcpClientConfiguration.setInterval(500);

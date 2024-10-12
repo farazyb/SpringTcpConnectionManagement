@@ -35,7 +35,7 @@ public class ServerManagerTest{
         mockServer = mock(Server.class);
         mockConfig = mock(TcpServerConfiguration.class);
 
-        when(mockServer.getTcpServerConfiguration()).thenReturn(mockConfig);
+        when(mockServer.getBaseTcpSocketConfiguration()).thenReturn(mockConfig);
         when(mockConfig.getChannelIdentificationName()).thenReturn("server1");
         caughtException = null;
     }
@@ -57,13 +57,13 @@ public class ServerManagerTest{
 
     @Given("the server is stopped")
     public void serverIsStopped() throws ManagersException {
-        when(mockServer.getState()).thenReturn(State.STOPPED);
+        when(mockServer.state()).thenReturn(State.STOPPED);
         serverManager.addService(mockServer);
     }
 
     @Given("the server is running")
     public void serverIsRunning() throws ManagersException {
-        when(mockServer.getState()).thenReturn(State.RUNNING);
+        when(mockServer.state()).thenReturn(State.RUNNING);
         serverManager.addService(mockServer);
     }
 
@@ -86,13 +86,13 @@ public class ServerManagerTest{
     }
 
     @Then("the server should be added successfully")
-    public void serverShouldBeAddedSuccessfully() {
+    public void serverShouldBeAddedSuccessfully() throws ManagersException {
         Server retrievedServer = serverManager.get("server1");
         assertEquals(mockServer, retrievedServer);
     }
 
     @Then("the server should be removed")
-    public void serverShouldBeRemoved() {
+    public void serverShouldBeRemoved() throws ManagersException {
         assertNull(serverManager.get("server1"));
     }
     @Then("an exception should be thrown with message {string}")
