@@ -72,6 +72,7 @@ public class Server implements NetworkChannel {
         acceptor.setDefaultLocalAddress(new InetSocketAddress(tcpServerConfiguration.getPort()));
         acceptor.setReuseAddress(true);
         acceptor.setFilterChainBuilder(filterChainBuilder);
+        acceptor.getSessionConfig().setAll(tcpServerConfiguration);
         acceptor.setHandler(new NetworkChannelHandler());
         return acceptor;
     }
@@ -86,7 +87,9 @@ public class Server implements NetworkChannel {
 
     @Override
     public void restart() {
-
+        stop();
+        start();
+        log.info("Client restarted.");
     }
 
     public void dispose() {

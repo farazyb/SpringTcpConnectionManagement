@@ -34,11 +34,8 @@ public class Repeater {
     }
 
 
-    public void connect(NioSocketConnector nioSocketConnector) {
-        try {
-
-
-            ConnectFuture connectFuture = retryTemplate.execute(context -> {
+    public IoSession connect(NioSocketConnector nioSocketConnector) {
+        return retryTemplate.execute(context -> {
 
                 log.info("try to connect {}th", context.getRetryCount());
                 ConnectFuture future = nioSocketConnector.connect();
@@ -47,15 +44,9 @@ public class Repeater {
                     throw new NetworkBindingException("cant connect to " + nioSocketConnector.getDefaultRemoteAddress());
                 }
                 return future;
-            });
+            }).getSession();
 
-        } catch (NetworkBindingException e) {
-            e.printStackTrace();
-            log.error("error {}",e.getMessage());
 
-        }
-
-        log.info("end");
     }
 
 }

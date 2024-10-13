@@ -43,9 +43,12 @@ public class SpringTcpConnectionManagementApplication implements CommandLineRunn
             tcpClientConfiguration.setChannelIdentificationName("client");
             tcpClientConfiguration.setMaxTry(10);
             tcpClientConfiguration.setInterval(500);
+            tcpClientConfiguration.setPermanent(true);
+            tcpClientConfiguration.setMaxIdleToReset(40000);
             Client client = clientManager.createClient(tcpClientConfiguration);
             client.start();
             clientManager.addService(client);
+
 
 
 //        serverManager.remove("Test");
