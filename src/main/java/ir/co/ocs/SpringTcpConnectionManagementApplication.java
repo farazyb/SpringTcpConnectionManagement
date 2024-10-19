@@ -1,17 +1,14 @@
 package ir.co.ocs;
 
-import ir.co.ocs.envoriments.client.Client;
-import ir.co.ocs.envoriments.client.ClientManager;
-import ir.co.ocs.envoriments.server.Server;
-import ir.co.ocs.envoriments.server.ServerManager;
-import ir.co.ocs.socketconfiguration.TcpClientConfiguration;
-import ir.co.ocs.socketconfiguration.TcpServerConfiguration;
+import ir.co.ocs.connection.envoriments.client.Client;
+import ir.co.ocs.connection.envoriments.client.ClientManager;
+import ir.co.ocs.connection.envoriments.server.ServerManager;
+import ir.co.ocs.connection.socketconfiguration.TcpClientConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.Environment;
-import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication

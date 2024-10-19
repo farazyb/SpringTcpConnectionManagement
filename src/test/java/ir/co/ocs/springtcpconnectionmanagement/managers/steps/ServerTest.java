@@ -1,17 +1,16 @@
 package ir.co.ocs.springtcpconnectionmanagement.managers.steps;
 
 import io.cucumber.java.Before;
-import io.cucumber.java.BeforeAll;
-import io.cucumber.java.BeforeStep;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.cucumber.spring.CucumberContextConfiguration;
-import ir.co.ocs.envoriments.State;
-import ir.co.ocs.envoriments.exceptions.NetworkBindingException;
-import ir.co.ocs.envoriments.server.Server;
-import ir.co.ocs.socketconfiguration.TcpServerConfiguration;
+import ir.co.ocs.connection.envoriments.State;
+import ir.co.ocs.connection.envoriments.StateService;
+import ir.co.ocs.connection.envoriments.exceptions.NetworkBindingException;
+import ir.co.ocs.connection.envoriments.server.Server;
+import ir.co.ocs.connection.handler.NetworkChannelHandler;
+import ir.co.ocs.connection.socketconfiguration.TcpServerConfiguration;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
@@ -40,6 +39,10 @@ public class ServerTest {
 
     @Mock
     private IoFilterAdapter filter;
+    @Mock
+    private StateService stateService;
+    @Mock
+    private NetworkChannelHandler networkChannelHandler;
     @Spy
     @InjectMocks
     private Server server;
@@ -52,7 +55,7 @@ public class ServerTest {
 
     @Given("a TcpServerConfiguration with port {int}")
     public void a_tcp_server_configuration_with_port(Integer port) {
-        server = new Server(filterChainBuilder);
+        server = new Server(filterChainBuilder, stateService,networkChannelHandler);
         when(tcpServerConfiguration.getPort()).thenReturn(port);
     }
 
@@ -102,7 +105,7 @@ public class ServerTest {
 
     @Given("a server that is started and is in RUNNING state")
     public void aServerThatIsStartedAndIsInRunningState() throws IOException {
-        server = spy(new Server(filterChainBuilder));
+        server = spy(new Server(filterChainBuilder, stateService,networkChannelHandler));
         TcpServerConfiguration configuration = mock(TcpServerConfiguration.class);
         when(configuration.getPort()).thenReturn(8080);
         server.initialize(configuration);
